@@ -301,9 +301,9 @@ module.exports = function (RED) {
             }
             let org = version === VERSION_18_FLUX ? '' : this.org;
 
-            this.client = this.influxdbConfig.client.getWriteApi(org, bucket, this.precisionV18FluxV20);
-
             node.on("input", function (msg, send, done) {
+                org = msg.hasOwnProperty('org') ? msg.org : (node.org || org);
+                node.client = node.influxdbConfig.client.getWriteApi(org, bucket, node.precisionV18FluxV20);
                 writePoints(msg, node, done);
             });
         }
@@ -474,15 +474,15 @@ module.exports = function (RED) {
 
         } else if (version === VERSION_18_FLUX || version === VERSION_20) {
             let org = version === VERSION_20 ? this.org : ''
-            this.client = this.influxdbConfig.client.getQueryApi(org);
             var node = this;
-
             node.on("input", function (msg, send, done) {
+                org = msg.hasOwnProperty('org') ? msg.org : (node.org || org);
                 var query = msg.hasOwnProperty('query') ? msg.query : node.query;
                 if (!query) {
                     return done(RED._("influxdb.errors.noquery"));
                 }
                 var output = [];
+                node.client = node.influxdbConfig.client.getQueryApi(org);
                 node.client.queryRows(query, {
                     next(row, tableMeta) {
                         var o = tableMeta.toObject(row)
