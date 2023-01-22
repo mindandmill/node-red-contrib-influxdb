@@ -302,7 +302,7 @@ module.exports = function (RED) {
             let org = version === VERSION_18_FLUX ? '' : this.org;
 
             node.on("input", function (msg, send, done) {
-                org = node.context()?.global?.org || msg?.org || node?.org || org;
+                org = node.context()?.global?.get?.('org') || msg?.org || node?.org || org;
                 node.client = node.influxdbConfig.client.getWriteApi(org, bucket, node.precisionV18FluxV20);
                 writePoints(msg, node, done);
             });
@@ -373,7 +373,7 @@ module.exports = function (RED) {
             var client = this.influxdbConfig.client.getWriteApi(org, bucket, this.precisionV18FluxV20);
 
             node.on("input", function (msg, send, done) {
-                org = node.context()?.global?.org || msg?.org || node?.org || org;
+                org = node.context()?.global?.get?.('org') || msg?.org || node?.org || org;
 
                 msg.payload.forEach(element => {
                     let point = new Point(element.measurement);
@@ -477,7 +477,7 @@ module.exports = function (RED) {
             let org = version === VERSION_20 ? this.org : ''
             var node = this;
             node.on("input", function (msg, send, done) {
-                org = node.context()?.global?.org || msg?.org || node?.org || org;
+                org = node.context()?.global?.get?.('org') || msg?.org || node?.org || org;
                 var query = msg.hasOwnProperty('query') ? msg.query : node.query;
                 if (!query) {
                     return done(RED._("influxdb.errors.noquery"));
